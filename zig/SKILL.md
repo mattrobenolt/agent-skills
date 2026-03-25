@@ -148,6 +148,45 @@ Same for `@bitCast`, `@truncate`, `@floatFromInt`, `@intFromFloat`, `@enumFromIn
 - Keep tests inline with the code they cover
 - Comments explain why, not what
 
+### Use `@splat` for initialization
+
+Use `@splat` to initialize arrays and vectors with a uniform value. Do NOT manually repeat values or use `**` multiplication:
+
+```zig
+// WRONG — verbose and error-prone:
+const mask = [_]u8{ 0, 0, 0, 0 };
+const zeroes = [_]u8{0} ** 16;
+
+// RIGHT — use @splat:
+const mask: [4]u8 = @splat(0);
+const zeroes: [16]u8 = @splat(0);
+
+// Also works for vectors:
+const vec: @Vector(4, f32) = @splat(1.0);
+```
+
+### Use type aliases liberally
+
+Type aliases improve readability and self-document intent. Always prefer a named alias over a bare type when the type appears more than once or when the name adds semantic meaning:
+
+```zig
+// Import aliases — always extract frequently used imports:
+const assert = std.debug.assert;
+const Allocator = std.mem.Allocator;
+const log = std.log.scoped(.my_module);
+
+// Array/Vector type aliases — name what the type represents:
+const Mask = [4]u8;
+const MaskVec = @Vector(4, u8);
+const Color = [4]f32;
+
+// Instead of bare types scattered through signatures:
+fn applyMask(data: []u8, mask: Mask) void { ... }
+// NOT: fn applyMask(data: []u8, mask: [4]u8) void { ... }
+```
+
+A good type alias tells you *what it is*, not just *what it's made of*. `Mask` is more informative than `[4]u8`. When you see a raw array or vector type repeated in function signatures, fields, or local variables, extract an alias.
+
 ## Before Writing Zig Code
 
 1. Run `zigdoc` to verify any std library API you're unsure about
