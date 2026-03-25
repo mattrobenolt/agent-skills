@@ -9,8 +9,22 @@ Check the diff against main and remove all AI-generated comment slop introduced 
 
 ## What to remove
 
+### Decorative section headers (top priority)
+
+LLMs compulsively insert "section divider" comments to organize code into labeled regions. These are the single biggest tell of AI-generated code. Remove them aggressively. They add no information — the code structure *is* the organization.
+
+Patterns to match (any comment syntax: `//`, `#`, `/* */`, `--`, etc.):
+- Dashed/decorated dividers: `// --- Tests ---`, `// === Helpers ===`, `# ---- Config ----`
+- Section labels: `// Tests`, `// Helpers`, `// Public API`, `// Private methods`
+- Re-export / sub-module labels: `// --- Re-exports: foo.zig ---`, `// --- Sub-modules ---`
+- Category headers: `// Write helpers`, `// Utility functions`, `// Constants`, `// Type definitions`
+- Any comment that is just a noun or noun phrase acting as a heading for a block of code
+
+If the *pre-existing* code already uses section headers in this style, leave them alone — only strip ones introduced in this branch's diff.
+
+### Other comment slop
+
 - Comments that explain obvious code (`// initialize the variable`, `// return the result`)
-- Section-divider comments a human wouldn't write (`// --- Helper Functions ---`)
 - Redundant comments that restate the function/variable name (`// processItems processes items`)
 - Comments that narrate control flow (`// check if error`, `// loop through items`)
 - TODO/FIXME comments added by AI that weren't requested
